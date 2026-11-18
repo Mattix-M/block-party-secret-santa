@@ -218,7 +218,7 @@ export default function Home() {
             return <button key={p.id} type="button" disabled={taken || reserved}
               onClick={() => chooseName(p.id)}>
               <Avatar player={p} className="sheet-photo"/><span><b>{p.first}</b>
-              {taken ? <small>Claimed</small> : p.id === "gleb" ? <small>Host</small> : null}</span></button>;
+              {taken ? <small>Claimed</small> : p.id === "gleb" ? <small>{view.isHost ? "You" : "Host link only"}</small> : null}</span></button>;
           })}</div>
         </> : <>
           <div className="sheet-kicker">PRIVATE DRAW · {me.first.toUpperCase()}</div>
