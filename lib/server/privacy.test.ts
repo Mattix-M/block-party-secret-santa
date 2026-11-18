@@ -11,7 +11,7 @@ import { newGame } from "../party/game";
 import { players } from "../party/players";
 import { cookieName, makeToken } from "./session";
 import { loadGame, sealGame } from "./state-cipher";
-import { readGame } from "./store";
+import { blobWriteEtag, readGame } from "./store";
 
 function freshSecret() { return randomBytes(32).toString("base64url"); }
 
@@ -82,6 +82,18 @@ test("the API privately gives only the completed aggregate to the host and migra
     const hostOpen = await request("gleb", { type: "open" });
     assert.equal(typeof hostOpen.body.recipient, "string");
     assert.equal(hostOpen.body.recipient === "brady" || hostOpen.body.recipient === "gleb", false);
+    const recipient = hostOpen.body.recipient;
+    const preference = { style: "serious", ideas: "A secondhand winter cookbook." };
+    assert.deepEqual(hostOpen.body.recipientGiftPreference, { style: "either", ideas: "" });
+    const gift = await request(recipient, { type: "gift", giftPreference: preference });
+    assert.equal(gift.status, 200);
+    assert.deepEqual(gift.body.myGiftPreference, preference);
+    assert.deepEqual((await request("gleb")).body.recipientGiftPreference, preference);
+    for (const { id } of players.filter(p => p.id !== recipient && p.id !== "gleb")) {
+      assert.ok(!JSON.stringify((await request(id)).body).includes(preference.ideas));
+    }
+    assert.ok(!stored().includes(preference.ideas));
+    assert.deepEqual((await readGame(settings.secret)).claims[recipient].giftPreference, preference);
     sqlite.close();
   } finally {
     process.chdir(oldDir);
@@ -145,4 +157,10 @@ test("invite and recovery redirects survive the production adapter and preserve 
       else process.env[key] = value;
     }
   }
+});
+
+test("compressed private Blob reads retain the exact quoted validator accepted for conditional writes", () => {
+  assert.equal(blobWriteEtag('W/"123abc"'), '"123abc"');
+  assert.equal(blobWriteEtag('W/"opaque.metadata-5"'), '"opaque.metadata-5"');
+  assert.equal(blobWriteEtag('"already-strong"'), '"already-strong"');
 });

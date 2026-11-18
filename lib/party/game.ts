@@ -6,10 +6,19 @@ const hostPlayer = "gleb";
 
 export type ExchangeUser = { id: string; isHost: boolean };
 
+export interface GiftPreference {
+  style: "either" | "funny" | "serious";
+  ideas: string;
+}
+export const giftIdeasLimit = 300;
+const defaultGift: GiftPreference = Object.freeze({ style: "either", ideas: "" });
+
 interface Claim {
   userId: string;
   veto: string | null;
   opened: boolean;
+  // Older saved registrations omit this field and use the default.
+  giftPreference?: GiftPreference;
 }
 
 /** Private, JSON-serializable server state. Never send this object to a client. */
@@ -23,6 +32,8 @@ export interface ExchangeView {
   claimed: string[];
   mine: string | null;
   myVeto: string | null;
+  myGiftPreference: GiftPreference | null;
+  recipientGiftPreference: GiftPreference | null;
   drawn: boolean;
   blocked: boolean;
   opened: boolean;
@@ -49,6 +60,25 @@ export function newGame(): Game {
 function myPlayer(game: Game, user: ExchangeUser | null): string | null {
   if (!user) return null;
   return roster.find((id) => game.claims[id]?.userId === user.id) ?? null;
+}
+
+function readGift(value: unknown): GiftPreference {
+  if (!value || typeof value !== "object" || Array.isArray(value)) {
+    throw new GameError(400, "Choose a gift style.");
+  }
+  const { style, ideas = "" } = value as Record<string, unknown>;
+  if (style !== "either" && style !== "funny" && style !== "serious") throw new GameError(400, "Choose a gift style.");
+  if (typeof ideas !== "string") throw new GameError(400, "Gift ideas must be text.");
+  const text = ideas.trim();
+  if (text.length > giftIdeasLimit) throw new GameError(400, "Keep gift ideas to 300 characters.");
+  return { style, ideas: text };
+}
+
+function changeGift(game: Game, player: string, giftPreference: GiftPreference): Game {
+  const claim = game.claims[player];
+  const prior = claim.giftPreference ?? defaultGift;
+  if (prior.ideas === giftPreference.ideas && prior.style === giftPreference.style) return game;
+  return { ...game, claims: { ...game.claims, [player]: { ...claim, giftPreference } } };
 }
 
 function randomRank(count: number): number {
@@ -116,14 +146,17 @@ export function viewGame(game: Game, user: ExchangeUser | null): ExchangeView {
   const mine = myPlayer(game, user);
   const claim = mine === null ? null : game.claims[mine];
   const claimed = roster.filter((id) => Boolean(game.claims[id]));
+  const recipient = mine && claim?.opened ? game.assignments?.[mine] ?? null : null;
   return {
     claimed,
     mine,
     myVeto: claim?.veto ?? null,
+    myGiftPreference: claim ? { ...(claim.giftPreference ?? defaultGift) } : null,
+    recipientGiftPreference: recipient ? { ...(game.claims[recipient].giftPreference ?? defaultGift) } : null,
     drawn: game.assignments !== null,
     blocked: game.assignments === null && claimed.length === roster.length,
     opened: claim?.opened ?? false,
-    recipient: mine && claim?.opened ? game.assignments?.[mine] ?? null : null,
+    recipient,
     published: game.published,
     result: game.published ? topVetoes(game) : null,
     isHost: user?.isHost ?? false,
@@ -154,11 +187,18 @@ export function applyAction(game: Game, user: ExchangeUser, action: unknown): Ga
       if (mine && mine !== player) throw new GameError(409, "You already claimed another name.");
       const previous = game.claims[player];
       if (previous && previous.userId !== user.id) throw new GameError(409, "Someone already claimed that name.");
-      if (previous && previous.veto === veto) return game;
+      const giftPreference = request.giftPreference === undefined
+        ? previous?.giftPreference ?? defaultGift
+        : readGift(request.giftPreference);
+      if (previous && previous.veto === veto) return changeGift(game, player, giftPreference);
       if (game.assignments) throw new GameError(409, "The draw has happened. Vetoes are locked.");
-      const claims = { ...game.claims, [player]: { userId: user.id, veto, opened: false } };
+      const claims = { ...game.claims, [player]: { userId: user.id, veto, opened: false, giftPreference } };
       const assignments = Object.keys(claims).length === roster.length ? draw(claims) : null;
       return { ...game, claims, assignments };
+    }
+    case "gift": {
+      if (!mine) throw new GameError(403, "Claim your name before adding gift ideas.");
+      return changeGift(game, mine, readGift(request.giftPreference));
     }
     case "open": {
       if (!mine) throw new GameError(403, "Claim your name first.");

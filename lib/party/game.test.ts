@@ -81,7 +81,7 @@ test("only the participant can open their assignment and the result persists", (
   assert.equal(applyAction(opened, user(participant), { type: "open" }), opened);
   assert.equal(viewGame(drawn, user(participant)).opened, false);
   assert.deepEqual(Object.keys(view).sort(), [
-    "claimed", "mine", "myVeto", "drawn", "blocked", "opened",
+    "claimed", "mine", "myVeto", "myGiftPreference", "recipientGiftPreference", "drawn", "blocked", "opened",
     "recipient", "published", "result", "isHost",
   ].sort());
 });
@@ -101,4 +101,81 @@ test("results reveal only the most-vetoed recipients, including ties or zero vot
   assert.equal(applyAction(after, user("gleb"), { type: "publish" }), after);
   assert.deepEqual(viewGame(applyAction(fill(), user("gleb"), { type: "publish" }), null).result,
     { ids: [], count: 0 });
+});
+
+test("gift choices survive veto edits and only the recipient's Santa sees the note after opening", () => {
+  const gift = { style: "funny", ideas: "a tiny ceramic llama" };
+  const owner = guests[0];
+  let game = applyAction(newGame(), user(owner), {
+    type: "register", player: owner, veto: guests[1], giftPreference: { ...gift, ideas: "  " + gift.ideas + "  " },
+  });
+  assert.deepEqual(viewGame(game, user(owner)).myGiftPreference, gift);
+  game = register(game, owner, guests[2]);
+  assert.deepEqual(viewGame(game, user(owner)).myGiftPreference, gift);
+  for (const id of ids.filter(id => id !== owner)) game = register(game, id);
+  assert.ok(game.assignments);
+  const santa = ids.find(id => game.assignments![id] === owner)!;
+  assert.deepEqual(viewGame(game, null).myGiftPreference, null);
+  assert.deepEqual(viewGame(game, user("outsider")).recipientGiftPreference, null);
+  for (const id of ids) {
+    const view = viewGame(game, user(id));
+    assert.equal(view.recipientGiftPreference, null);
+    if (id !== owner) assert.ok(!JSON.stringify(view).includes(gift.ideas));
+  }
+  for (const id of ids) game = applyAction(game, user(id), { type: "open" });
+  for (const id of ids) {
+    const view = viewGame(game, user(id));
+    if (id === santa) assert.deepEqual(view.recipientGiftPreference, gift);
+    if (id !== owner && id !== santa) assert.ok(!JSON.stringify(view).includes(gift.ideas));
+  }
+  const updated = { style: "serious", ideas: "something I can use for class" };
+  const change = { type: "gift", giftPreference: updated };
+  const edited = applyAction(game, user(owner), change);
+  assert.equal(edited.assignments, game.assignments);
+  assert.deepEqual(viewGame(game, user(santa)).recipientGiftPreference, gift);
+  assert.deepEqual(viewGame(edited, user(santa)).recipientGiftPreference, updated);
+  assert.deepEqual(viewGame(edited, user(owner)).myGiftPreference, updated);
+  assert.equal(viewGame(edited, user(owner)).opened, true);
+  assert.equal(applyAction(edited, user(owner), change), edited);
+  assert.equal(register(edited, owner, guests[2]), edited);
+});
+
+test("old claims receive defaults on read and can save a preference without reopening the draw", () => {
+  const game = JSON.parse(JSON.stringify(fill())) as Game;
+  for (const claim of Object.values(game.claims)) delete claim.giftPreference;
+  const giver = guests[0], receiver = game.assignments![giver];
+  const opened = applyAction(game, user(giver), { type: "open" });
+  const empty = { style: "either", ideas: "" };
+  assert.deepEqual(viewGame(opened, user(giver)).myGiftPreference, empty);
+  assert.deepEqual(viewGame(opened, user(giver)).recipientGiftPreference, empty);
+  const gift = { style: "serious", ideas: "the book on my shelf" };
+  const edited = applyAction(opened, user(receiver), { type: "gift", giftPreference: gift });
+  const restored = JSON.parse(JSON.stringify(edited)) as Game;
+  assert.deepEqual(viewGame(restored, user(giver)).recipientGiftPreference, gift);
+  assert.deepEqual(restored.assignments, game.assignments);
+  assert.equal(restored.claims[giver].opened, true);
+  assert.deepEqual(viewGame(applyAction(restored, user(receiver), { type: "gift", giftPreference: { style: "either" } }),
+    user(receiver)).myGiftPreference, empty);
+});
+
+test("gift validation enforces ownership, known styles and a 300 UTF-16 unit note limit", () => {
+  const id = guests[0];
+  const game = register(newGame(), id);
+  const submit = (giftPreference: unknown) => applyAction(game, user(id), { type: "gift", giftPreference });
+  assert.throws(() => applyAction(game, user("outsider"), { type: "gift", player: id, giftPreference: { style: "funny" } }), status(403));
+  for (const invalid of [
+    null, [], {}, "", "funny", { style: 3 }, { style: "practical" },
+    { style: "serious", ideas: false }, { style: "funny", ideas: null },
+    { style: "either", ideas: "a".repeat(301) }, { style: "serious", ideas: "🎁".repeat(151) },
+  ]) {
+    assert.throws(() => submit(invalid), status(400));
+    assert.throws(() => applyAction(newGame(), user(id), { type: "register", player: id, giftPreference: invalid }), status(400));
+  }
+  const max = "🎁".repeat(150);
+  const accepted = submit({ style: "either", ideas: " " + max + "\n" });
+  assert.equal(viewGame(accepted, user(id)).myGiftPreference!.ideas, max);
+  assert.deepEqual(viewGame(submit({ style: "funny", ideas: "   " }), user(id)).myGiftPreference, { style: "funny", ideas: "" });
+  const seen = viewGame(accepted, user(id));
+  seen.myGiftPreference!.ideas = "changed by a view consumer";
+  assert.equal(viewGame(accepted, user(id)).myGiftPreference!.ideas, max);
 });

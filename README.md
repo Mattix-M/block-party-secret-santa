@@ -1,6 +1,6 @@
 # BLOCK PARTY Secret Santa
 
-A ten-person holiday exchange for the Richmond BLOCK PARTY group chat. The opening reel features the group's photos and custom bios. Each guest claims a name, optionally vetoes one other person, and opens their own assignment once everyone registers. Gleb can see the aggregate veto count privately after matching and announce it at the party.
+A ten-person holiday exchange for the Richmond BLOCK PARTY group chat. The opening reel features the group's photos and custom bios. Each guest picks their name, can veto one person, and chooses a gift style with room for an optional note. The tenth check-in triggers the draw. Everyone can then open their own match and see what their recipient wants. Players can edit their own gift ideas even after the draw. Gleb can see the aggregate veto count privately after matching and announce it at the party.
 
 ## Run locally
 

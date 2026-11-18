@@ -47,3 +47,43 @@
 @media(max-width:520px){.sheet-inner{padding:16px 18px 22px}.party-dialog{max-height:93dvh}.sheet-top{margin-bottom:16px}.claim-grid button{padding:6px 8px}.recipient-card{padding:12px}.veto-list label{gap:6px}.sheet-photo{width:33px!important}}
 
 .host-tally{margin-top:20px;border-top:1px dashed #b9c0ac;padding-top:16px}.host-tally strong{font-size:1.1rem}.party-dialog .host-tally p{margin:4px 0}.manual-copy{display:block;width:100%;padding:8px;margin-top:8px}
+
+.party-dialog h2:focus{outline:none}
+.gift-options{
+  display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;
+  border:0;padding:0;margin:0 0 20px;min-width:0;
+}
+.gift-choice{
+  display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:7px;
+  min-height:67px;padding:10px 12px;border:1px solid #bdc6b4;border-radius:8px;
+  background:#fffdf5;font-weight:600;line-height:1.2;cursor:pointer;
+}
+.gift-choice input{width:17px;height:17px;margin:0;flex:none;accent-color:#24513b}
+.gift-choice:hover{border-color:#49624c}
+.gift-choice:has(input:checked){background:#e4eddd;border-color:#376749}
+.gift-choice:has(input:focus-visible){outline:2px solid #ad2c47;outline-offset:2px}
+.ideas-label{display:flex;align-items:baseline;gap:8px;margin-bottom:6px;font-weight:700}
+.ideas-label span{font-size:.82rem;font-weight:400;color:#58665a}
+.ideas-input{
+  display:block;width:100%;min-height:80px;max-height:14rem;resize:vertical;
+  padding:11px 13px;border:1px solid #acb8a4;border-radius:8px;background:#fffdf5;
+  color:#193b2f;font:inherit;font-size:1rem;line-height:1.4;
+}
+.ideas-input::placeholder{color:#68746a}
+.ideas-input:focus-visible{outline:2px solid #ad2c47;outline-offset:2px}
+.ideas-count{margin:3px 0 15px;color:#59685a;text-align:right;font: .73rem/1.4 "Space Mono",monospace}
+.gift-request{
+  margin:14px 0 18px;padding:13px 16px;border-left:3px solid #9a263b;
+  border-radius:2px 8px 8px 2px;background:#f0e9db;
+}
+.gift-request-top{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:4px 10px}
+.gift-request h3{margin:0 0 3px;color:#67403e;font-size:.84rem;font-weight:600}
+.gift-request strong{display:block;font-size:1.05rem}
+.party-dialog .gift-request p{margin:6px 0 0;white-space:pre-wrap;overflow-wrap:anywhere}
+.own-request{margin:18px 0;padding:13px 0 0;border:0;border-top:1px dashed #b9c0ac;border-radius:0;background:none}
+.own-request h3{color:#546454}
+.own-request .sheet-link{padding:4px 0}
+@media(max-width:420px){
+  .gift-options{grid-template-columns:1fr;gap:6px;margin-bottom:15px}
+  .gift-choice{flex-direction:row-reverse;align-items:center;justify-content:space-between;min-height:44px;padding:8px 12px}
+}

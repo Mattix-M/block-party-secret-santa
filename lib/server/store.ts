@@ -14,12 +14,18 @@ function blobPath() {
   return "block-party-2026/production/exchange.json";
 }
 
+export function blobWriteEtag(readEtag: string): string {
+  // A compressed private GET prefixes Blob's opaque, quoted write validator with W/.
+  // Use the validator from the very response that supplied the encrypted game bytes.
+  return readEtag.startsWith('W/"') ? readEtag.slice(2) : readEtag;
+}
+
 async function readBlob(path: string, secret: string) {
   const blob = await get(path, { access: "private", useCache: false });
   if (!blob) return { game: newGame(), etag: null, legacy: false };
   if (blob.statusCode !== 200 || !blob.blob.etag) throw new Error("Could not read the current exchange version");
   const stored = await new Response(blob.stream).text();
-  return { ...loadGame(stored, secret, path), etag: blob.blob.etag };
+  return { ...loadGame(stored, secret, path), etag: blobWriteEtag(blob.blob.etag) };
 }
 
 async function withGame(secret: string, change: (game: Game) => Game): Promise<Game> {
