@@ -23,7 +23,19 @@ function locked(api: boolean, settingsReady = true, invalidInvite = false) {
 
 function begin(request: NextRequest, settings: SessionConfig, user: PartyUser) {
   // Strip the invite or recovery token from the address bar before loading any assets.
-  const response = new NextResponse(null, { status: 303, headers: { ...privateHeaders, Location: "/" } });
+  const destination = new URL("/", request.nextUrl.origin);
+  const host = request.headers.get("host")?.toLowerCase();
+  if (process.env.VERCEL) {
+    destination.protocol = "https:";
+    // Preserve a routed alias when Vercel supplies its internal deployment URL.
+    const domains = [process.env.VERCEL_PROJECT_PRODUCTION_URL, process.env.VERCEL_BRANCH_URL, process.env.VERCEL_URL];
+    if (host && domains.some(domain => domain?.toLowerCase() === host)) destination.host = host;
+  } else if (destination.hostname === "localhost" && host && /^(localhost|127\.0\.0\.1|\[::1\])(:\d{1,5})?$/.test(host)) {
+    // Next normalizes loopback IPs to localhost. Preserve the origin of a host-only cookie.
+    const loopback = new URL(destination.protocol + "//" + host);
+    if (loopback.port === destination.port) destination.host = loopback.host;
+  }
+  const response = NextResponse.redirect(destination, { status: 303, headers: privateHeaders });
   response.cookies.set(cookieName, makeToken(settings, "session", user), {
     httpOnly: true, secure: Boolean(process.env.VERCEL) || request.nextUrl.protocol === "https:",
     sameSite: "lax", path: "/", maxAge: cookieLifetime,
