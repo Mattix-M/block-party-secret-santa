@@ -1,0 +1,33 @@
+{
+  "name": "block-party-secret-santa",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build --webpack",
+    "start": "next start",
+    "test": "node --import tsx --test lib/party/game.test.ts lib/server/privacy.test.ts",
+    "typecheck": "tsc --noEmit",
+    "prebuild": "node scripts/roster.mjs prepare",
+    "predev": "node scripts/roster.mjs prepare",
+    "pretest": "node scripts/roster.mjs prepare",
+    "pretypecheck": "node scripts/roster.mjs prepare"
+  },
+  "dependencies": {
+    "@vercel/blob": "2.9.0",
+    "lucide-react": "1.31.0",
+    "next": "16.4.6",
+    "react": "19.3.1",
+    "react-dom": "19.3.1"
+  },
+  "devDependencies": {
+    "@types/node": "^24.0.0",
+    "@types/react": "^19.2.0",
+    "@types/react-dom": "^19.2.0",
+    "tsx": "^4.20.0",
+    "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": "24.x"
+  }
+}

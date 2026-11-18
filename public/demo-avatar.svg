@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1206 1206" role="img" aria-label="Wrapped gift">
+  <rect width="1206" height="1206" fill="#e8ead9"/>
+  <circle cx="603" cy="603" r="490" fill="#d3deca"/>
+  <g stroke="#173f34" stroke-width="25" stroke-linejoin="round">
+    <path d="M370 570h466v277H370z" fill="#f9f1cc"/>
+    <path d="M330 475h546v109H330z" fill="#f9f1cc"/>
+    <path d="M559 475h89v372h-89z" fill="#bd3c48"/>
+    <path d="M599 472c-170 0-220-53-203-104 24-72 140-37 203 104zm9 0c166 0 213-57 195-105-24-65-130-45-195 105z" fill="#bd3c48"/>
+  </g>
+</svg>

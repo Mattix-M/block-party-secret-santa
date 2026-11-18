@@ -1,0 +1,49 @@
+.party-dialog{color:#193b2f;background:#fbf7ec;border:1px solid #667666;border-radius:20px;padding:0;width:min(560px,calc(100% - 28px));max-height:90dvh;overscroll-behavior:contain;box-shadow:0 24px 100px #001e1d40}
+.party-dialog::backdrop{background:rgb(9 28 23 / .56);backdrop-filter:blur(5px)}
+.sheet-inner{padding:24px 32px 30px}
+.sheet-top,.my-veto{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sheet-top{border-bottom:1px dashed #adad95;padding-bottom:14px;margin-bottom:23px}
+.sheet-top>span,.sheet-kicker,.sheet-note,.result-total{font-family:"Space Mono",monospace}
+.sheet-top>span,.sheet-link,.sheet-error button{display:inline-flex;align-items:center;gap:.55rem}
+.sheet-top>span{font-weight:700;font-size:.83rem;letter-spacing:.08em}
+.sheet-x{width:36px;height:36px;border:1px solid #bcc3af;border-radius:50%;display:grid;place-items:center;color:inherit;background:transparent}
+.sheet-x:hover,.sheet-secondary:hover{background:#e9ecde}
+.sheet-kicker{font-size:.8rem;letter-spacing:.08em;color:#9a263b;font-weight:700;margin-bottom:8px}
+.party-dialog h2{font-family:"DM Serif Display",Georgia,serif;font-weight:400;font-size:clamp(2.25rem,6vw,3.15rem);line-height:1;letter-spacing:-.042em;margin:0 0 12px}
+.party-dialog p{margin:0 0 20px;color:#44564a;line-height:1.48}
+.sheet-symbol{width:58px;height:58px;display:grid;place-items:center;background:#e5ebd9;color:#245040;border-radius:50%;margin-bottom:15px}
+.claim-grid,.veto-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.claim-grid button,.veto-list label{border:1px solid #bdc6b4;border-radius:8px;background:#fffdf5;color:#183b2c;display:flex;align-items:center;text-align:left;gap:10px;min-width:0;font-size:1rem;line-height:1.25}
+.claim-grid button{min-height:50px;padding:7px 10px}
+.claim-grid button:disabled{opacity:.52;background:#ebece1}
+.claim-grid button:not(:disabled):hover,.veto-list label:hover{border-color:#49624c;background:#eaf0e2}
+.claim-grid span:not(:first-child){display:grid}
+.claim-grid small,.recipient-card small,.recovery small{font-size:.8rem;color:#546356}
+.sheet-photo{width:37px!important;flex:none}.mini-face{width:27px!important;flex:none}.big-face{width:83px!important;flex:none}
+.veto-list{border:0;padding:0;margin:0 0 17px;min-width:0}
+.veto-list label{min-height:42px;padding:6px 10px;cursor:pointer;position:relative;overflow:hidden}
+.veto-list label:focus-within{outline:2px solid #ad2c47;outline-offset:1px}
+.veto-list input[type=radio],.sr-only{position:absolute;clip-path:inset(50%);width:1px;height:1px;overflow:hidden;white-space:nowrap}
+.veto-list i{margin-left:auto;width:16px;height:16px;flex:none;border-radius:50%;border:1px solid #879783;display:grid;place-items:center}
+.veto-list .selected{font-weight:700;border-color:#376749;background:#e4eddd}
+.veto-list .selected i{background:#24513b;color:white;border-color:#24513b}
+.veto-list .no-veto{min-height:45px;margin-bottom:10px}
+.sheet-main,.sheet-secondary{width:100%;border-radius:7px;min-height:47px;font-size:1rem;font-weight:700;padding:10px 16px}
+.sheet-main{background:#174c36;color:#fffaf0;border:1px solid #174c36}.sheet-main:hover{background:#103e2c}.sheet-main:disabled{opacity:.5}
+.sheet-secondary{border:1px solid #6d816d;background:transparent;color:inherit}
+.sheet-link,.sheet-error button{color:#28503d;background:none;border:0;font-size:.9rem;font-weight:700;padding:8px 0;text-decoration:underline;text-underline-offset:3px}
+.sheet-main+.sheet-link{margin-top:4px}
+.join-progress{height:9px;background:#dee1cd;border-radius:8px;overflow:hidden;margin-top:12px}
+.join-progress span{height:100%;display:block;background:#316649}.sheet-note{font-size:.8rem;margin-top:5px}
+.my-veto{padding:18px 0}.my-veto span{color:#5d6b5e}
+.recovery{margin-top:19px;border-top:1px dashed #b9c0ac;padding-top:8px}
+.recovery small,.recovery input{display:block}.recovery input{width:100%;padding:8px}
+.recipient-card,.spin-stage{margin:16px 0 20px;padding:18px;border:1px solid #b9c1ac;background:#f0f1e2;border-radius:12px;display:flex;align-items:center;gap:16px}
+.recipient-card b,.recipient-card small{display:block}.recipient-card p{margin:7px 0 0;font-size:.96rem}
+.spin-stage strong{font:700 2rem "Barlow Condensed",sans-serif}
+.result-people{display:flex;flex-wrap:wrap;gap:12px;margin:20px 0}
+.result-person{display:flex;align-items:center;gap:8px}.party-dialog .result-total{color:#8a2034;font-weight:bold}
+.sheet-error{margin-top:12px;padding:10px 13px;background:#f8e7dd;border:1px solid #cda795;color:#772b23;border-radius:7px;display:grid}
+@media(max-width:520px){.sheet-inner{padding:16px 18px 22px}.party-dialog{max-height:93dvh}.sheet-top{margin-bottom:16px}.claim-grid button{padding:6px 8px}.recipient-card{padding:12px}.veto-list label{gap:6px}.sheet-photo{width:33px!important}}
+
+.host-tally{margin-top:20px;border-top:1px dashed #b9c0ac;padding-top:16px}.host-tally strong{font-size:1.1rem}.party-dialog .host-tally p{margin:4px 0}.manual-copy{display:block;width:100%;padding:8px;margin-top:8px}

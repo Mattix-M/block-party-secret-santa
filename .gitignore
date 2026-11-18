@@ -1,0 +1,13 @@
+node_modules/
+.next/
+.local/
+.vercel/
+.env*
+!.env.example
+*.tsbuildinfo
+next-env.d.ts
+# Generated from the private encrypted roster or the public demo template.
+/lib/party/players.ts
+/lib/party/.roster-*.tmp
+/public/players/
+/private/
